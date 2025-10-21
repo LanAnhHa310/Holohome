@@ -2,4 +2,6 @@
     <string name="app_name">App mobile final project</string>
     <string name="window_main">AR Mode</string>
     <string name="window_settings">Settings</string>
+    <string name="window_savedFurn">Saved Furniture</string>
+    <string name="window_savedLay">Saved Layout</string>
 </resources>
