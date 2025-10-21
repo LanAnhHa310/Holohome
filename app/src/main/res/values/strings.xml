@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">App mobile final project</string>
     <string name="window_main">AR Mode</string>
+    <string name="window_settings">Settings</string>
 </resources>
