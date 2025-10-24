@@ -94,6 +94,25 @@
 
     </com.google.android.material.tabs.TabLayout>
 
+    <GridView
+        android:id="@+id/gridSaved"
+        android:layout_width="400dp"
+        android:layout_height="530dp"
+        android:numColumns="3"
+        android:verticalSpacing="12dp"
+        android:horizontalSpacing="12dp"
+        android:stretchMode="columnWidth"
+        android:gravity="center"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/tabCategories"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@drawable/placeholdertile" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
