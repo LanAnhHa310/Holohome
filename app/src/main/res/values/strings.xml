@@ -12,5 +12,8 @@
     <string name="tabTables">Tables</string>
     <string name="tabChairs">Chairs</string>
     <string name="tabDesks">Desks</string>
+    <string name="hint_inspiration">Inspiration awaits...</string>
+    <string name="cd_search">Search</string>
+    <string name="cd_filters">Filters</string>
 
 </resources>
