@@ -65,7 +65,7 @@ class CreateAccountActivity : AppCompatActivity(R.layout.create_account_activity
 
         // IME action "Done" submits
         edtConfirm.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE && btnCreate.isEnabled) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 submitIfValid()
                 true
             } else false
@@ -80,24 +80,8 @@ class CreateAccountActivity : AppCompatActivity(R.layout.create_account_activity
     }
 
     private fun updateButtonState() {
-        val name  = edtFullName.text?.toString()
-        val email = edtEmail.text?.toString()
-        val pass  = edtPassword.text?.toString()
-        val conf  = edtConfirm.text?.toString()
-
-        val checks = listOf(
-            "name"   to isNameValid(name),
-            "email"  to isEmailValid(email),
-            "pass"   to isPasswordStrong(pass),
-            "match"  to doPasswordsMatch(pass, conf),
-            "terms"  to cbTerms.isChecked
-        )
-        btnCreate.isEnabled = checks.all { it.second }
-
-        // DEBUG: watch Logcat (tag: CreateAccount)
-        Log.d("CreateAccount", checks.joinToString { "${it.first}=${it.second}" })
+        btnCreate.isEnabled = true
     }
-
 
     private fun submitIfValid() {
         // Set errors where needed (so user knows what to fix)
