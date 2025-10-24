@@ -16,5 +16,14 @@
     <string name="cd_search">Search</string>
     <string name="cd_filters">Filters</string>
     <string name="hint_layout">Layout finder</string>
+    <string name="sign_in">Sign In</string>
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="sign_in_to_continue">Please sign in to continue</string>
+    <string name="email">Your email</string>
+    <string name="password">Your password</string>
+    <string name="remember_me">Always remember</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="or">Or</string>
+    <string name="continue_with_google">Continue with Google</string>
 
 </resources>
