@@ -20,7 +20,7 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
 - New homeowners on a budget
 - Anyone who feels overwhelmed shopping for furniture online
 
-# Getting Started
+## Getting Started
 ## What you need
 - Android Studio
 - Android phone or emulator (Android 7.0 or newer)
@@ -70,7 +70,7 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
 - Product detail expansion
 - Store link integration
 
-# Project Structure
+## Project Structure
 ```
 app/
 ├── manifests/
@@ -98,15 +98,46 @@ app/
         └── sign_in.xml
 
 ```
+## Known Issues & Limitations
+- Password stored in plain text (demo only - will implement secure storage)
+- Dummy furniture data (will integrate with real database)
+- AR features pending implementation
+- Limited to supported ARCore devices for AR functionality
+
+## Future Enhancements
+- Cloud storage for saved layouts
+- Social sharing features
+- Integration with furniture retailer APIs
+- AI-powered design suggestions
+- Room measurement tools
+- Virtual staging for real estate
+
+## Where to Get Help
+# Common Problems
+1. App won't run:
+- Check your Android version (need 7.0 or higher)
+- Enable USB debugging in Developer Options
+- Restart Android Studio and rebuild
+2. Can't create account:
+- Password needs 8+ characters with letters AND numbers
+- Use valid email format
+- Check the Terms checkbox
+3. Search/Filter issues:
+- Try simpler search words
+- Click "Apply" after selecting filters
+- Use "Reset" to clear filters
+# Contact the Team
+- Thi Lan Anh Ha - @LanAnhHa310
+- Steph Borla - @Usanomi
+
 ## Contributing
 - We use a branch-based workflow with individual developer branches. Direct commits to main are allowed only for safe, quick fixes (e.g., README updates, minor typos).
-# Active Development Branches
 - Steph: usanomi - UI/UX, menus, settings, saved furniture screens
 - Anh: LanAnhHa310 - Authentication, main screens, filters, saved layout screens
 
 ## Credits
 This application was developed by the Gonzaga University Mobile Development Team: "Mango Matcha"
-# Team Members
+- Team Members:
 1. Thi Lan Anh Ha (LanAnhHa310)
 2. Steph Borla (Usanomi)
 
