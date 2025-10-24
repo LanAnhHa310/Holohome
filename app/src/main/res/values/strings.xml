@@ -9,4 +9,8 @@
     <string name="savLay">Saved Layout</string>
     <string name="addAcct">Add Account</string>
     <string name="logOut">Log Out</string>
+    <string name="tabTables">Tables</string>
+    <string name="tabChairs">Chairs</string>
+    <string name="tabDesks">Desks</string>
+
 </resources>
