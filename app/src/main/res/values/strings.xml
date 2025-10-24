@@ -15,5 +15,6 @@
     <string name="hint_inspiration">Inspiration awaits...</string>
     <string name="cd_search">Search</string>
     <string name="cd_filters">Filters</string>
+    <string name="hint_layout">Layout finder</string>
 
 </resources>
