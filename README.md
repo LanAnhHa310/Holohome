@@ -1,27 +1,27 @@
-#HoloHome - AR Furniture App
-##What it does
+## HoloHome - AR Furniture App
+## What it does
 HoloHome helps you see how furniture looks in your room before you buy it. Browse furniture, use your phone camera to place items in your space, and save room designs you like.
 
-##Key Features:
+## Key Features:
 - Browse furniture by category (tables, chairs, desks)
 - Filter by price, color, and material
 - Place furniture using AR camera (coming soon)
 - Save your favorite room layouts
 - Create account and manage settings
 
-##Why use it?
+## Why use it?
 - Save money
 - Preview complete rooms, not just one item
 - No design skills needed
 - Make sure items match and fit
 
-##Who is it for?
+## Who is it for?
 - Students furnishing dorm rooms
 - New homeowners on a budget
 - Anyone who feels overwhelmed shopping for furniture online
 
-#Getting Started
-##What you need
+# Getting Started
+## What you need
 - Android Studio
 - Android phone or emulator (Android 7.0 or newer)
 
@@ -71,6 +71,7 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
 - Store link integration
 
 ## Project Structure
+```
 app/
 ├── manifests/
 │   └── AndroidManifest.xml
