@@ -1,4 +1,4 @@
-## HoloHome - AR Furniture App
+### HoloHome - AR Furniture App
 ## What it does
 HoloHome helps you see how furniture looks in your room before you buy it. Browse furniture, use your phone camera to place items in your space, and save room designs you like.
 
@@ -33,15 +33,15 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
 
 4. Build and run the application on your emulator or physical device
 
-### First Time Setup
-1. Launch the app - you'll be directed to the Create Account screen
+## First Time Setup
+1. Launch the app, you'll be directed to the Create Account screen
 2. Enter your full name, email, and password (min 8 characters with letters & numbers)
 3. Agree to terms and create your account
 4. You'll be automatically signed in and directed to the main browse screen
 
 ## Current Features
 
-### Implemented
+## Implemented
 - **User Authentication System**
   - Create account with validation (email format, password strength)
   - Sign in with remember me functionality
@@ -63,14 +63,14 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
   - Saved furniture and layouts screens (UI only)
   - Hamburger menu integration
 
-### In Progress
+## In Progress
 - AR camera integration for furniture placement
 - Multi-item AR scene management
 - Save/load custom room layouts
 - Product detail expansion
 - Store link integration
 
-## Project Structure
+# Project Structure
 ```
 app/
 ├── manifests/
@@ -96,3 +96,29 @@ app/
         ├── saved_lay.xml
         ├── settings_view.xml
         └── sign_in.xml
+
+```
+## Contributing
+- We use a branch-based workflow with individual developer branches. Direct commits to main are allowed only for safe, quick fixes (e.g., README updates, minor typos).
+# Active Development Branches
+- Steph: usanomi - UI/UX, menus, settings, saved furniture screens
+- Anh: LanAnhHa310 - Authentication, main screens, filters, saved layout screens
+
+## Credits
+This application was developed by the Gonzaga University Mobile Development Team: "Mango Matcha"
+# Team Members
+1. Thi Lan Anh Ha (LanAnhHa310)
+2. Steph Borla (Usanomi)
+
+## Course Information
+Course: CPSC 333 - Mobile Application Development
+Institution: Gonzaga University
+Semester: Fall 2025
+Instructor: Daniel Olivares
+
+## Technologies Used
+- Kotlin
+- Android SDK
+- Material Design Components
+- ARCore (planned)
+- SharedPreferences
