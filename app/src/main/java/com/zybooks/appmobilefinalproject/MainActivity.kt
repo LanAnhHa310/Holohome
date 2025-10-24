@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
+import android.widget.ImageButton
+import android.content.Intent
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
@@ -60,6 +62,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
+        // Open Settings when top-left button is tapped
+        findViewById<ImageButton>(R.id.btnHamburger).setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
+        val avatar = findViewById<ImageButton>(R.id.imgAvatar)
+        avatar.setOnClickListener {
+            // Sanity log to confirm click is firing
+            // Log.d("MainActivity", "Avatar clicked")
+            startActivity(Intent(this, AccountSettingsActivity::class.java))
+        }
     }
 
     private fun showCategory(cat: Category) {

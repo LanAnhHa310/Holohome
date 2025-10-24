@@ -19,11 +19,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignInActivity" />
+
+        <activity
+            android:name=".SignInActivity" />
 
         <activity
             android:name=".MainActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".SettingsActivity" />
+
+        <activity
+            android:name=".AccountSettingsActivity" />
     </application>
 
 </manifest>
