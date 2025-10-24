@@ -1,20 +1,73 @@
 package com.zybooks.appmobilefinalproject
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.tabs.TabLayout
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
+    enum class Category { TABLES, CHAIRS, DESKS }
+
+    data class FurnitureItem(
+        val id: String,
+        val name: String,
+        val category: Category,
+        val imageRes: Int
+    )
+
+    private lateinit var rv: RecyclerView
+    private lateinit var adapter: FurnitureAdapter
+    private lateinit var tabLayout: TabLayout
+
+    // TODO replace with your real data/images
+    private val allItems = listOf(
+        FurnitureItem("t1", "Oak Table", Category.TABLES, R.drawable.placeholdertile),
+        FurnitureItem("t2", "Glass Table", Category.TABLES, R.drawable.placeholdertile),
+        FurnitureItem("c1", "Dining Chair", Category.CHAIRS, R.drawable.placeholdertile),
+        FurnitureItem("c2", "Arm Chair", Category.CHAIRS, R.drawable.placeholdertile),
+        FurnitureItem("d1", "Standing Desk", Category.DESKS, R.drawable.placeholdertile),
+        FurnitureItem("d2", "Corner Desk", Category.DESKS, R.drawable.placeholdertile),
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
+        // RecyclerView
+        rv = findViewById(R.id.rvItems)
+        rv.layoutManager = GridLayoutManager(this, 3) // 3-column grid
+        rv.setHasFixedSize(true)
+        rv.addItemDecoration(GridSpacingItemDecoration(3, dp(12), includeEdge = true))
+
+        adapter = FurnitureAdapter()
+        rv.adapter = adapter
+
+        // Tabs (already defined via TabItems in XML)
+        tabLayout = findViewById(R.id.tabLayout)
+
+        // Initial category = Tables (index 0)
+        showCategory(Category.TABLES)
+
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                when (tab.position) {
+                    0 -> showCategory(Category.TABLES)
+                    1 -> showCategory(Category.CHAIRS)
+                    2 -> showCategory(Category.DESKS)
+                }
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
     }
+
+    private fun showCategory(cat: Category) {
+        val filtered = allItems.filter { it.category == cat }
+        adapter.submitList(filtered)
+        rv.scrollToPosition(0)
+    }
+
+    // dp helper
+    private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 }
