@@ -32,6 +32,10 @@
 
         <activity
             android:name=".AccountSettingsActivity" />
+
+        <activity
+            android:name=".FavoriteFurn" />
+
     </application>
 
 </manifest>

@@ -45,9 +45,7 @@ class SettingsActivity : AppCompatActivity(R.layout.settings_view) {
         }
 
         savFurn.setOnClickListener {
-            // TODO: open your Saved Furniture screen
-            Toast.makeText(this, "Saved Furniture not implemented yet.", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, SavedFurnitureActivity::class.java))
+            startActivity(Intent(this, FavoriteFurn::class.java))
         }
 
         savLay.setOnClickListener {
