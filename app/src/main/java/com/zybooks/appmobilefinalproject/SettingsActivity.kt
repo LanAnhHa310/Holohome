@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -23,10 +22,10 @@ class SettingsActivity : AppCompatActivity(R.layout.settings_view) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Toolbar "hamburger" acts as back in this screen
-        findViewById<ImageButton>(R.id.btnHamburger)?.setOnClickListener { finish() }
-        // Or if you prefer the toolbar's own nav icon:
-        // findViewById<MaterialToolbar>(R.id.toolbar)?.setNavigationOnClickListener { finish() }
+        // Toolbar navigation icon acts as back button
+        findViewById<MaterialToolbar>(R.id.toolbar)?.setNavigationOnClickListener {
+            finish()
+        }
 
         // Bind views
         searchView = findViewById(R.id.searchView)
@@ -39,9 +38,7 @@ class SettingsActivity : AppCompatActivity(R.layout.settings_view) {
 
         // Clicks
         acctSet.setOnClickListener {
-            // TODO: replace with your real Account Settings screen
             Toast.makeText(this, "Account Settings not implemented yet.", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, AccountSettingsActivity::class.java))
         }
 
         savFurn.setOnClickListener {
@@ -49,13 +46,10 @@ class SettingsActivity : AppCompatActivity(R.layout.settings_view) {
         }
 
         savLay.setOnClickListener {
-            // TODO: open your Saved Layouts screen
             Toast.makeText(this, "Saved Layouts not implemented yet.", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, SavedLayoutsActivity::class.java))
         }
 
         addAcct.setOnClickListener {
-            // Reuse your CreateAccountActivity
             startActivity(Intent(this, CreateAccountActivity::class.java))
         }
 

@@ -25,15 +25,6 @@
             android:text="@string/window_settings"
             android:textAppearance="?attr/textAppearanceTitleLarge" />
 
-        <ImageView
-            android:id="@+id/imgAvatar"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_gravity="end|center_vertical"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_marginRight="8dp"
-            android:src="@drawable/acctbox" />
-
     </com.google.android.material.appbar.MaterialToolbar>
 
     <androidx.appcompat.widget.SearchView
