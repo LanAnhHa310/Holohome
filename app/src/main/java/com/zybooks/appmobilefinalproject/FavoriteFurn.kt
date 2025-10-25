@@ -15,6 +15,8 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
 import android.widget.TextView
+import com.google.android.material.appbar.MaterialToolbar
+import android.widget.ImageView
 import com.google.android.material.textfield.TextInputEditText
 import android.text.Editable
 import android.text.TextWatcher
@@ -219,19 +221,24 @@ class FavoriteFurn : AppCompatActivity(R.layout.fav_furn) {
         })
 
 
-        // Navigation buttons
-        findViewById<ImageButton>(R.id.btnHamburger).setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
+        // Toolbar back arrow
+        findViewById<MaterialToolbar>(R.id.toolbar)?.setNavigationOnClickListener {
+            finish()
         }
 
-        findViewById<ImageButton>(R.id.imgAvatar).setOnClickListener {
+        // imgAvatar
+        findViewById<ImageView>(R.id.imgAvatar)?.setOnClickListener {
             startActivity(Intent(this, AccountSettingsActivity::class.java))
         }
 
-        findViewById<ImageButton>(R.id.btnFilters).setOnClickListener {
-            openFilterSheet()
+        // These views do NOT exist in fav_furn.xml; guard them so they don't crash
+        findViewById<ImageButton?>(R.id.btnHamburger)?.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
 
+        findViewById<ImageButton?>(R.id.btnFilters)?.setOnClickListener {
+            openFilterSheet()
+        }
     }
 
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
