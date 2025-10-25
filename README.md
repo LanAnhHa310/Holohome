@@ -56,7 +56,22 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
     - Color selection (dynamic chips)
     - Material selection (dynamic chips)
     - Sort options (price ascending/descending, name A-Z)
-  
+  - Favorite/save furniture items
+
+## Saved Furniture Management
+- View all saved/favorited furniture items
+- Grid layout display (2 columns)
+- Real-time search functionality
+- Filter by category
+- Remove items from favorites
+- Navigate back to furniture details
+
+## Saved Layouts Management
+- View all saved room layouts
+- Grid layout display (2 columns) with preview cards
+- Search layouts by name or room type
+- Filter by room type (Living Room, Bedroom, Kitchen, Office)
+
 - **Navigation System**
   - Settings menu with search functionality
   - Account settings access
@@ -69,8 +84,10 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
 - Save/load custom room layouts
 - Product detail expansion
 - Store link integration
+- Layout editing functionality
+- Persistent storage for saved furniture (currently in-memory)
+- Persistent storage for saved layouts (currently using sample data)
 
-```
 ## Known Issues & Limitations
 - Password stored in plain text (demo only - will implement secure storage)
 - Dummy furniture data (will integrate with real database)
