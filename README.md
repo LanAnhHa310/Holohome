@@ -70,33 +70,6 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
 - Product detail expansion
 - Store link integration
 
-## Project Structure
-```
-app/
-├── manifests/
-│   └── AndroidManifest.xml
-├── kotlin/
-│   └── com.zybooks.appmobilefinalproject/
-│       ├── AccountSettingsActivity.kt
-│       ├── CreateAccountActivity.kt
-│       ├── FurnitureAdapter.kt
-│       ├── GridSpacingItemDecoration.kt
-│       ├── MainActivity.kt
-│       ├── SettingsActivity.kt
-│       └── SignInActivity.kt
-└── res/
-    └── layout/
-        ├── account_settings.xml
-        ├── activity_main.xml
-        ├── create_account_activity.xml
-        ├── fav_furn.xml
-        ├── filter_sheet.xml
-        ├── item_furniture.xml
-        ├── item_saved_panel.xml
-        ├── saved_lay.xml
-        ├── settings_view.xml
-        └── sign_in.xml
-
 ```
 ## Known Issues & Limitations
 - Password stored in plain text (demo only - will implement secure storage)
