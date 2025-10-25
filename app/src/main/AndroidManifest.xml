@@ -36,6 +36,11 @@
         <activity
             android:name=".FavoriteFurn" />
 
+        <activity
+            android:name=".SavedLayoutsActivity"
+            android:exported="false"
+            android:parentActivityName=".SettingsActivity" />
+
     </application>
 
 </manifest>

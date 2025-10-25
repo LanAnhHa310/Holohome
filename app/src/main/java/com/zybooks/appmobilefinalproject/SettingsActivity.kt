@@ -38,7 +38,7 @@ class SettingsActivity : AppCompatActivity(R.layout.settings_view) {
 
         // Clicks
         acctSet.setOnClickListener {
-            Toast.makeText(this, "Account Settings not implemented yet.", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, AccountSettingsActivity::class.java))
         }
 
         savFurn.setOnClickListener {
@@ -46,7 +46,7 @@ class SettingsActivity : AppCompatActivity(R.layout.settings_view) {
         }
 
         savLay.setOnClickListener {
-            Toast.makeText(this, "Saved Layouts not implemented yet.", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, SavedLayoutsActivity::class.java))
         }
 
         addAcct.setOnClickListener {
