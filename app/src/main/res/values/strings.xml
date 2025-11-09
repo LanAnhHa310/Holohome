@@ -25,5 +25,9 @@
     <string name="forgot_password">Forgot password?</string>
     <string name="or">Or</string>
     <string name="continue_with_google">Continue with Google</string>
+    <string name="place_furn">Place Furniture</string>
+    <string name="purchase_link">Purchase Link</string>
+    <string name="add_Fav">Add To Favorites</string>
+    <string name="item_menu">Item Menu</string>
 
 </resources>
