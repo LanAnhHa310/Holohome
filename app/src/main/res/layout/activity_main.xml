@@ -45,7 +45,7 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <!-- AR / Camera container (square like the mock) -->
+    <!-- AR / Camera image view -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cameraCard"
         android:layout_width="0dp"
@@ -57,19 +57,17 @@
         app:layout_constraintDimensionRatio="1:1"
         app:cardCornerRadius="12dp">
 
-        <!-- Replace with your AR view -->
-        <FrameLayout
-            android:id="@+id/arContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <!-- Placeholder icon -->
+        <!-- Image preview area -->
         <ImageView
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:alpha="0.6"
-            android:src="@drawable/ic_videocam" />
+            android:id="@+id/imgPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:background="#DDDDDD"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
