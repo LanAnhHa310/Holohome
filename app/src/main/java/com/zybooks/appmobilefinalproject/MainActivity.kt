@@ -20,6 +20,26 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.EditorInfo
 import android.view.View
+import android.Manifest
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+
+// File and time utilities for naming saved images
+import java.io.File
+import java.io.FileInputStream
+import java.io.OutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+// For saving images to the device's public gallery (MediaStore)
+import android.content.ContentValues
+import android.util.Log
+
+
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
