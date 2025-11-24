@@ -37,14 +37,20 @@ import java.util.Locale
 
 // For saving images to the device's public gallery (MediaStore)
 import android.content.ContentValues
+import android.hardware.SensorEventListener
 import android.util.Log
+import android.widget.Button
 
+const val REQUEST_CAMERA_PERMISSION = 1001
 
-
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class MainActivity : AppCompatActivity(R.layout.activity_main), SensorEventListener {
 
     enum class Category { TABLES, CHAIRS, DESKS }
     enum class SortMode { PRICE_ASC, PRICE_DESC, NAME_ASC }
+
+    private lateinit var btnCamera: Button
+
+    private val cameraPermission = Manifest.permission.CAMERA
 
     data class FurnitureItem(
         val id: String,
