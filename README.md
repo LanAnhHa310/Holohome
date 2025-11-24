@@ -47,7 +47,7 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
   - Sign in with remember me functionality
   - Account settings (change password, profile picture)
  
-- **Furniture Browse Interface**
+- **Main Room View**
   - Camera View control center
   
 - **Furniture Browse Interface**
