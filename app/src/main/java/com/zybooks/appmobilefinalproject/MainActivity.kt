@@ -38,17 +38,24 @@ import java.util.Locale
 // For saving images to the device's public gallery (MediaStore)
 import android.content.ContentValues
 import android.hardware.SensorEventListener
+import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 
-const val REQUEST_CAMERA_PERMISSION = 1001
 
-class MainActivity : AppCompatActivity(R.layout.activity_main), SensorEventListener {
+const val REQUEST_CAMERA_PERMISSION = 1001 //for camera access
+
+class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
+    private lateinit var btnCamera: Button
+    private lateinit var imgPhoto: ImageView
 
     enum class Category { TABLES, CHAIRS, DESKS }
     enum class SortMode { PRICE_ASC, PRICE_DESC, NAME_ASC }
 
-    private lateinit var btnCamera: Button
 
     private val cameraPermission = Manifest.permission.CAMERA
 
@@ -87,19 +94,113 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), SensorEventListe
     private lateinit var searchInput: TextInputEditText
 
     private val allItems = listOf(
-        FurnitureItem("t1", "Oak Table", Category.TABLES, R.drawable.placeholdertile, 300, "Brown", "Wood", listOf("dining","family")),
-        FurnitureItem("t2", "Glass Table", Category.TABLES, R.drawable.placeholdertile, 450, "Transparent", "Glass", listOf("modern")),
-        FurnitureItem("t3", "Marble Table", Category.TABLES, R.drawable.placeholdertile, 850, "White", "Stone", listOf("luxury","dining")),
-        FurnitureItem("c1", "Dining Chair", Category.CHAIRS, R.drawable.placeholdertile, 80, "Brown", "Wood", listOf("set","dining")),
-        FurnitureItem("c2", "Arm Chair", Category.CHAIRS, R.drawable.placeholdertile, 160, "Blue", "Fabric", listOf("cozy")),
-        FurnitureItem("c3", "Office Chair", Category.CHAIRS, R.drawable.placeholdertile, 220, "Black", "Leather", listOf("office","ergonomic")),
-        FurnitureItem("d1", "Standing Desk", Category.DESKS, R.drawable.placeholdertile, 520, "Black", "Metal", listOf("office")),
-        FurnitureItem("d2", "Corner Desk", Category.DESKS, R.drawable.placeholdertile, 430, "White", "Wood", listOf("home")),
-        FurnitureItem("d3", "Writing Desk", Category.DESKS, R.drawable.placeholdertile, 280, "Brown", "Wood", listOf("home","compact"))
+        FurnitureItem(
+            "t1",
+            "Oak Table",
+            Category.TABLES,
+            R.drawable.placeholdertile,
+            300,
+            "Brown",
+            "Wood",
+            listOf("dining", "family")
+        ),
+        FurnitureItem(
+            "t2",
+            "Glass Table",
+            Category.TABLES,
+            R.drawable.placeholdertile,
+            450,
+            "Transparent",
+            "Glass",
+            listOf("modern")
+        ),
+        FurnitureItem(
+            "t3",
+            "Marble Table",
+            Category.TABLES,
+            R.drawable.placeholdertile,
+            850,
+            "White",
+            "Stone",
+            listOf("luxury", "dining")
+        ),
+        FurnitureItem(
+            "c1",
+            "Dining Chair",
+            Category.CHAIRS,
+            R.drawable.placeholdertile,
+            80,
+            "Brown",
+            "Wood",
+            listOf("set", "dining")
+        ),
+        FurnitureItem(
+            "c2",
+            "Arm Chair",
+            Category.CHAIRS,
+            R.drawable.placeholdertile,
+            160,
+            "Blue",
+            "Fabric",
+            listOf("cozy")
+        ),
+        FurnitureItem(
+            "c3",
+            "Office Chair",
+            Category.CHAIRS,
+            R.drawable.placeholdertile,
+            220,
+            "Black",
+            "Leather",
+            listOf("office", "ergonomic")
+        ),
+        FurnitureItem(
+            "d1",
+            "Standing Desk",
+            Category.DESKS,
+            R.drawable.placeholdertile,
+            520,
+            "Black",
+            "Metal",
+            listOf("office")
+        ),
+        FurnitureItem(
+            "d2",
+            "Corner Desk",
+            Category.DESKS,
+            R.drawable.placeholdertile,
+            430,
+            "White",
+            "Wood",
+            listOf("home")
+        ),
+        FurnitureItem(
+            "d3",
+            "Writing Desk",
+            Category.DESKS,
+            R.drawable.placeholdertile,
+            280,
+            "Brown",
+            "Wood",
+            listOf("home", "compact")
+        )
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        //Camera View
+
+        imgPhoto = findViewById(R.id.imgPhoto)
+        btnCamera = findViewById(R.id.btnCamera)
+
+        btnCamera.setOnClickListener { takePhotoPreview() }
+
+        btnCamera.setOnLongClickListener {
+            takePhotoFullRes()
+            true
+        }
 
         // RecyclerView
         rv = findViewById(R.id.rvItems)
@@ -122,6 +223,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), SensorEventListe
                     2 -> showCategory(Category.DESKS)
                 }
             }
+
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
@@ -175,9 +277,198 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), SensorEventListe
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
     private fun hideKeyboard() {
-        val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        val imm =
+            getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
         imm.hideSoftInputFromWindow(searchInput.windowToken, 0)
     }
+
+    private fun takePhotoPreview(shake: String = "") {
+        // Check if CAMERA permission has been granted.
+        val granted = ContextCompat.checkSelfPermission(this, cameraPermission) ==
+                PackageManager.PERMISSION_GRANTED
+
+        if (!granted) {
+            // Ask for CAMERA permission. The result will be handled in onRequestPermissionsResult().
+            requestPermissions(
+                arrayOf(cameraPermission),
+                com.zybooks.appmobilefinalproject.REQUEST_CAMERA_PERMISSION
+            )
+            return
+        }
+        takePicturePreview.launch(null)
+    }
+
+    private val takePicturePreview = registerForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) { thumbnail: Bitmap? ->
+        if (thumbnail != null) {
+            // Show the thumbnail in the ImageView.
+            imgPhoto.setImageBitmap(thumbnail)
+
+            // Save the thumbnail into the device's gallery so it persists.
+            saveImageToGallery(thumbnail)
+
+            Toast.makeText(this, "Preview saved to gallery", Toast.LENGTH_SHORT).show()
+        } else {
+            // If no photo taken or error
+            Toast.makeText(this, "No preview returned", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private var photoFile: File? = null
+    private var photoUri: Uri? = null
+
+
+    private val takePicture = registerForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { success: Boolean ->
+        if (success) {
+            // Display the full-resolution image in the ImageView using the Uri.
+            imgPhoto.setImageURI(photoUri)
+
+            // Copy the photo file into the public gallery folder.
+            photoFile?.let { file ->
+                val saved = saveFullResFileToGallery(file)
+                if (saved != null) {
+                    Toast.makeText(
+                        this,
+                        "Saved full-resolution photo to gallery",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    // Optional: delete the app-private file once it's copied.
+                    // file.delete()
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Could not save full-resolution photo to gallery",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } else {
+            // The user may have canceled the camera or something failed.
+            Toast.makeText(this, "Did not save photo", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun takePhotoFullRes() {
+        val granted = ContextCompat.checkSelfPermission(this, cameraPermission) ==
+                PackageManager.PERMISSION_GRANTED
+
+        if (!granted) {
+            requestPermissions(
+                arrayOf(cameraPermission),
+                com.zybooks.appmobilefinalproject.REQUEST_CAMERA_PERMISSION
+            )
+            return
+        }
+
+        // Create a File in app-specific external storage where the photo will be written.
+        photoFile = createImageFile()
+
+        // Convert the File into a content:// Uri using FileProvider.
+        // The authority string must match the provider entry in AndroidManifest.xml.
+        photoUri = FileProvider.getUriForFile(
+            this,
+            "${applicationContext.packageName}.fileprovider",
+            photoFile!!
+        )
+
+        // Launch the full-resolution capture. The camera app will write the image data
+        // into the Uri we provided (photoUri).
+        photoUri?.let { uri ->
+            takePicture.launch(uri)
+        }
+    }
+
+    private fun createImageFile(): File {
+        // Create a timestamp for the file name.
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+        val imageFilename = "photo_$timeStamp.jpg"
+
+        // getExternalFilesDir() returns a directory like:
+        // /storage/emulated/0/Android/data/<package>/files/Pictures
+        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+
+        // Create a File object in that directory.
+        return File(storageDir, imageFilename)
+    }
+
+
+    private fun saveImageToGallery(bitmap: Bitmap) {
+        val filename = "preview_${System.currentTimeMillis()}.jpg"
+
+        // Describe the new image to the MediaStore.
+        val contentValues = ContentValues().apply {
+            put(
+                MediaStore.Images.Media.DISPLAY_NAME,
+                filename
+            )               // File name shown in gallery.
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")              // JPEG format.
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MyCustomDirectory")
+            // RELATIVE_PATH controls the visible folder inside "Pictures".
+        }
+
+        val resolver = contentResolver
+
+        // Insert a new item into the MediaStore and get a Uri pointing to it.
+        val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+        // Open an OutputStream to the Uri and compress the Bitmap into it.
+        uri?.let { mediaUri ->
+            resolver.openOutputStream(mediaUri)?.use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
+            }
+        }
+    }
+
+    private fun saveFullResFileToGallery(src: File): Uri? {
+        val filename = src.name
+
+        // Describe the new full-resolution image for the MediaStore.
+        val values = ContentValues().apply {
+            put(
+                MediaStore.Images.Media.DISPLAY_NAME,
+                filename
+            )               // Keep original file name.
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")              // JPEG format.
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MyCustomDirectory")
+        }
+
+        val resolver = contentResolver
+
+        // Insert a new MediaStore record and get the destination Uri.
+        val destUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            ?: return null
+
+        // Copy the file's bytes into the MediaStore OutputStream.
+        resolver.openOutputStream(destUri).use { out: OutputStream? ->
+            FileInputStream(src).use { input ->
+                if (out == null) return null
+                input.copyTo(out)
+            }
+        }
+
+        return destUri
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        val granted = grantResults.isNotEmpty() &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED
+
+        // If CAMERA permission was granted, immediately retry the preview capture
+        // to give a smooth user experience.
+        if (requestCode == com.zybooks.appmobilefinalproject.REQUEST_CAMERA_PERMISSION && granted) {
+            takePhotoPreview()
+        }
+    }
+
 
     private fun openFilterSheet() {
         val dialog = BottomSheetDialog(
@@ -194,21 +485,25 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), SensorEventListe
 
         // Find views
         val priceSlider = view.findViewById<RangeSlider>(R.id.priceSlider)
-            ?: run { Toast.makeText(this, "priceSlider missing", Toast.LENGTH_SHORT).show(); return }
+            ?: run {
+                Toast.makeText(this, "priceSlider missing", Toast.LENGTH_SHORT).show(); return
+            }
         val tvPriceRange = view.findViewById<TextView>(R.id.tvPriceRange)
-        val chipColors  = view.findViewById<ChipGroup>(R.id.chipColors)
+        val chipColors = view.findViewById<ChipGroup>(R.id.chipColors)
             ?: run { Toast.makeText(this, "chipColors missing", Toast.LENGTH_SHORT).show(); return }
-        val chipMats    = view.findViewById<ChipGroup>(R.id.chipMaterials)
-            ?: run { Toast.makeText(this, "chipMaterials missing", Toast.LENGTH_SHORT).show(); return }
-        val rgSort      = view.findViewById<RadioGroup>(R.id.rgSort)
+        val chipMats = view.findViewById<ChipGroup>(R.id.chipMaterials)
+            ?: run {
+                Toast.makeText(this, "chipMaterials missing", Toast.LENGTH_SHORT).show(); return
+            }
+        val rgSort = view.findViewById<RadioGroup>(R.id.rgSort)
             ?: run { Toast.makeText(this, "rgSort missing", Toast.LENGTH_SHORT).show(); return }
-        val rbPriceAsc  = view.findViewById<RadioButton>(R.id.sortPriceAsc)
+        val rbPriceAsc = view.findViewById<RadioButton>(R.id.sortPriceAsc)
         val rbPriceDesc = view.findViewById<RadioButton>(R.id.sortPriceDesc)
-        val rbNameAsc   = view.findViewById<RadioButton>(R.id.sortNameAsc)
+        val rbNameAsc = view.findViewById<RadioButton>(R.id.sortNameAsc)
 
         // Init slider
         priceSlider.valueFrom = globalMinPrice.toFloat()
-        priceSlider.valueTo   = globalMaxPrice.toFloat()
+        priceSlider.valueTo = globalMaxPrice.toFloat()
         priceSlider.stepSize = 10f
 
         val minV = maxOf(filters.minPrice, globalMinPrice).toFloat()
@@ -245,9 +540,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), SensorEventListe
 
         // Sort radio
         when (filters.sort) {
-            SortMode.PRICE_ASC  -> rbPriceAsc?.isChecked = true
+            SortMode.PRICE_ASC -> rbPriceAsc?.isChecked = true
             SortMode.PRICE_DESC -> rbPriceDesc?.isChecked = true
-            SortMode.NAME_ASC   -> rbNameAsc?.isChecked = true
+            SortMode.NAME_ASC -> rbNameAsc?.isChecked = true
         }
 
         // Reset button
@@ -270,11 +565,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), SensorEventListe
             ?.setOnClickListener {
                 val values = priceSlider.values
                 val selectedColors = groupCheckedTexts(chipColors)
-                val selectedMats   = groupCheckedTexts(chipMats)
+                val selectedMats = groupCheckedTexts(chipMats)
                 val sort = when (rgSort.checkedRadioButtonId) {
                     R.id.sortPriceDesc -> SortMode.PRICE_DESC
-                    R.id.sortNameAsc   -> SortMode.NAME_ASC
-                    else               -> SortMode.PRICE_ASC
+                    R.id.sortNameAsc -> SortMode.NAME_ASC
+                    else -> SortMode.PRICE_ASC
                 }
 
                 filters = filters.copy(
@@ -342,9 +637,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), SensorEventListe
 
         // Sort
         list = when (filters.sort) {
-            SortMode.PRICE_ASC  -> list.sortedBy { it.price }
+            SortMode.PRICE_ASC -> list.sortedBy { it.price }
             SortMode.PRICE_DESC -> list.sortedByDescending { it.price }
-            SortMode.NAME_ASC   -> list.sortedBy { it.name.lowercase() }
+            SortMode.NAME_ASC -> list.sortedBy { it.name.lowercase() }
         }
 
         adapter.submitList(list)
