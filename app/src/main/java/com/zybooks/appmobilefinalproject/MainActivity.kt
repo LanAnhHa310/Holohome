@@ -469,6 +469,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+
     private fun openFilterSheet() {
         val dialog = BottomSheetDialog(
             this
