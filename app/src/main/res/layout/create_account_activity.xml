@@ -141,33 +141,6 @@
                 android:layout_marginTop="16dp"
                 android:text="Create account" />
 
-            <!-- Or divider -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="or"
-                android:gravity="center"
-                android:layout_marginTop="8dp"
-                android:alpha="0.6"/>
-
-            <!-- Optional: Continue with Google -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnGoogle"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Continue with Google" />
-
-            <!-- Sign in link -->
-            <TextView
-                android:id="@+id/tvSignIn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Already have an account? Sign in"
-                android:textStyle="bold"
-                android:layout_gravity="center_horizontal"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

@@ -30,7 +30,6 @@ class CreateAccountActivity : AppCompatActivity(R.layout.create_account_activity
 
     private lateinit var cbTerms: MaterialCheckBox
     private lateinit var btnCreate: MaterialButton
-    private lateinit var tvSignIn: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +50,6 @@ class CreateAccountActivity : AppCompatActivity(R.layout.create_account_activity
 
         cbTerms     = findViewById(R.id.cbTerms)
         btnCreate   = findViewById(R.id.btnCreateAccount)
-        tvSignIn    = findViewById(R.id.tvSignIn)
 
         // Start disabled until valid
         btnCreate.isEnabled = true
@@ -73,9 +71,6 @@ class CreateAccountActivity : AppCompatActivity(R.layout.create_account_activity
 
         btnCreate.setOnClickListener { submitIfValid() }
 
-        tvSignIn.setOnClickListener {
-            startActivity(Intent(this, SignInActivity::class.java))
-        }
         updateButtonState()
     }
 

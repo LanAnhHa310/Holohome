@@ -24,6 +24,8 @@ class SignInActivity : AppCompatActivity(R.layout.sign_in) {
     private lateinit var btnSignIn: MaterialButton
     private lateinit var tvForgot: TextView
 
+    private lateinit var tvSignUp: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,6 +40,7 @@ class SignInActivity : AppCompatActivity(R.layout.sign_in) {
         cbRemember  = findViewById(R.id.cbRemember)
         btnSignIn   = findViewById(R.id.btnSignIn)
         tvForgot    = findViewById(R.id.tvForgot)
+        tvSignUp    = findViewById(R.id.tvSignUp)
 
         // Prefill email if previously remembered
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
@@ -61,6 +64,10 @@ class SignInActivity : AppCompatActivity(R.layout.sign_in) {
         tvForgot.setOnClickListener {
             // TODO: launch your forgot-password flow
             Toast.makeText(this, "Forgot password flow not implemented yet.", Toast.LENGTH_SHORT).show()
+        }
+
+        tvSignUp.setOnClickListener {
+            startActivity(Intent(this, CreateAccountActivity::class.java))
         }
 
         // Recompute once in case Autofill populated fields
