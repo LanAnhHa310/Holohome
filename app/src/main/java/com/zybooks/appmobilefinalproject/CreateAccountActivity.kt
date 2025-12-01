@@ -110,29 +110,24 @@ class CreateAccountActivity : AppCompatActivity(R.layout.create_account_activity
 
         if (!valid) return
 
-        // --- Demo "create account": save locally (replace with real API call)
+        // --- Save account locally ---
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
         prefs.edit()
             .putString("full_name", name)
             .putString("email", email)
-            // For demo only; don't store raw passwords in production
             .putString("password_plain", pass)
-            .putBoolean("logged_in", true)
+            // DO NOT set logged_in here – only after a real sign-in
             .apply()
 
-        Toast.makeText(this, "Account created!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Account created! Please sign in.", Toast.LENGTH_SHORT).show()
 
-        // >>> Navigate to main screen (activity_main.xml via MainActivity)
-        navigateToMain(name)
-    }
+        // Go back to SignIn and optionally prefill the email
+        val intent = Intent(this, SignInActivity::class.java)
+            .putExtra("prefill_email", email)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
 
-    // --- Navigation helper (added) ---
-    private fun navigateToMain(fullName: String) {
-        val intent = Intent(this, MainActivity::class.java)
-            .putExtra("full_name", fullName)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
-        // No finish() needed; flags clear the back stack
+        finish()
     }
 
     // --- Validation helpers ---

@@ -42,9 +42,20 @@ class SignInActivity : AppCompatActivity(R.layout.sign_in) {
         tvForgot    = findViewById(R.id.tvForgot)
         tvSignUp    = findViewById(R.id.tvSignUp)
 
-        // Prefill email if previously remembered
+        // Prefill from remembered email
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
-        edtEmail.setText(prefs.getString("email_remembered", ""))
+        val remembered = prefs.getString("email_remembered", "")
+
+        // Or from "prefill_email" extra (takes priority if present)
+        val prefillFromCreate = intent.getStringExtra("prefill_email")
+
+        edtEmail.setText(
+            when {
+                !prefillFromCreate.isNullOrBlank() -> prefillFromCreate
+                !remembered.isNullOrBlank() -> remembered
+                else -> ""
+            }
+        )
 
         // Live validation
         btnSignIn.isEnabled = false
