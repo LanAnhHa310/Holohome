@@ -14,6 +14,7 @@ import com.google.android.material.textfield.TextInputLayout
 import android.widget.Toast
 import android.content.Intent
 import android.util.Log
+import java.security.MessageDigest
 
 
 class CreateAccountActivity : AppCompatActivity(R.layout.create_account_activity) {
@@ -110,13 +111,13 @@ class CreateAccountActivity : AppCompatActivity(R.layout.create_account_activity
 
         if (!valid) return
 
+        val passwordHash = hashPassword(pass)
         // --- Save account locally ---
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
         prefs.edit()
             .putString("full_name", name)
             .putString("email", email)
-            .putString("password_plain", pass)
-            // DO NOT set logged_in here – only after a real sign-in
+            .putString("password_hash", passwordHash)
             .apply()
 
         Toast.makeText(this, "Account created! Please sign in.", Toast.LENGTH_SHORT).show()
@@ -151,4 +152,11 @@ class CreateAccountActivity : AppCompatActivity(R.layout.create_account_activity
         val b = p2?.trim().orEmpty()
         return a.isNotEmpty() && a == b
     }
+
+    //Hash the password before saving (SHA-256)
+    private fun hashPassword(pw: String): String {
+        val bytes = MessageDigest.getInstance("SHA-256").digest(pw.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }  // hex string
+    }
+
 }

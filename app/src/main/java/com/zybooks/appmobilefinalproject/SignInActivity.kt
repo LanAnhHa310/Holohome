@@ -114,13 +114,17 @@ class SignInActivity : AppCompatActivity(R.layout.sign_in) {
         // Compare with account saved by CreateAccountActivity
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
         val savedEmail = prefs.getString("email", null)?.trim()
-        val savedPass  = prefs.getString("password_plain", null)?.trim()
+        val savedHash  = prefs.getString("password_hash", null)
 
-        if (savedEmail.isNullOrEmpty() || savedPass.isNullOrEmpty()) {
+        if (savedEmail.isNullOrEmpty() || savedHash.isNullOrEmpty()) {
             Toast.makeText(this, "No account found. Please create one first.", Toast.LENGTH_SHORT).show()
             return
         }
-        if (!email.equals(savedEmail, ignoreCase = true) || pass != savedPass) {
+
+        // Hash the password the user typed in
+        val inputHash = hashPassword(pass)
+
+        if (!email.equals(savedEmail, ignoreCase = true) || inputHash != savedHash) {
             tilPassword.error = "Incorrect email or password"
             return
         }
@@ -145,4 +149,11 @@ class SignInActivity : AppCompatActivity(R.layout.sign_in) {
 
     private fun isEmailValid(email: String?) =
         !email.isNullOrBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
+
+    // Same hash helper as in CreateAccountActivity
+    private fun hashPassword(pw: String): String {
+        val bytes = java.security.MessageDigest.getInstance("SHA-256")
+            .digest(pw.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) }
+    }
 }

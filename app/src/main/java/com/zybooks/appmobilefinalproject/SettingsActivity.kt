@@ -100,7 +100,7 @@ class SettingsActivity : AppCompatActivity(R.layout.settings_view) {
         val prefs = getSharedPreferences("auth", MODE_PRIVATE)
         prefs.edit()
             .putBoolean("logged_in", false)
-            .remove("password_plain") // don't keep raw password
+//            .remove("password_plain") // don't keep raw password
             .apply()
 
         // Go to the sign-in screen and clear back stack
