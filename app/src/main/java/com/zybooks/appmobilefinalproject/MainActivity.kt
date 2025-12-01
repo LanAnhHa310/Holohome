@@ -45,31 +45,55 @@ import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 
 const val REQUEST_CAMERA_PERMISSION = 1001 //for camera access
 
+// Main furniture browsing screen.
+// Uses:
+// - RecyclerView to show furniture grid
+// - Tabs to switch category (Tables / Chairs / Desks)
+// - Volley + Room DB to load / cache furniture from a web API
+// - Camera for AR-style photo capture (preview + full-res)
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
+    // Lazy DB + DAO, using DatabaseProvider singleton.
+    private val db by lazy { DatabaseProvider.getDatabase(this) }
+    private val dao by lazy { db.furnitureDao() }
     private lateinit var btnCamera: Button
     private lateinit var imgPhoto: ImageView
 
+    // Volley request queue for API calls.
+    private lateinit var requestQueue: com.android.volley.RequestQueue
+
+    // High-level categories shown as tabs.
     enum class Category { TABLES, CHAIRS, DESKS }
+
+    // Sorting modes used in filter bottom sheet.
     enum class SortMode { PRICE_ASC, PRICE_DESC, NAME_ASC }
 
-
+    // Single permission constant for camera.
     private val cameraPermission = Manifest.permission.CAMERA
 
+    // "Domain model" version of furniture used by UI.
+    // This wraps DB entity + some computed values.
     data class FurnitureItem(
         val id: String,
         val name: String,
         val category: Category,
-        val imageRes: Int,
+//        val imageRes: Int,
+        val imageUrl: String?,
         val price: Int,
         val color: String,
         val material: String,
         val tags: List<String>
     )
 
+    // In-memory representation of active filter choices.
     data class FilterState(
         var minPrice: Int = 0,
         var maxPrice: Int = 10_000,
@@ -78,117 +102,134 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         var sort: SortMode = SortMode.PRICE_ASC
     )
 
+    // Current tab/category, search query, and filters.
     private var currentCategory = Category.TABLES
     private var currentQuery = ""
     private var filters = FilterState()
 
-    // For dynamic chips & slider bounds
-    private val allColors by lazy { allItems.map { it.color }.toSortedSet() }
-    private val allMaterials by lazy { allItems.map { it.material }.toSortedSet() }
-    private val globalMinPrice by lazy { allItems.minOf { it.price } }
-    private val globalMaxPrice by lazy { allItems.maxOf { it.price } }
+    // Derived data from allItems, safe when list is empty.
+    // Used to build filter chips and price slider range dynamically.
+    private val allColors: Set<String>
+        get() = allItems.map { it.color }.toSortedSet()
 
+    private val allMaterials: Set<String>
+        get() = allItems.map { it.material }.toSortedSet()
+
+    private val globalMinPrice: Int
+        get() = allItems.minOfOrNull { it.price } ?: 0
+
+    private val globalMaxPrice: Int
+        get() = allItems.maxOfOrNull { it.price } ?: 10_000
+
+    // RecyclerView + adapter + search field + tabs
     private lateinit var rv: RecyclerView
     private lateinit var adapter: FurnitureAdapter
     private lateinit var tabLayout: TabLayout
     private lateinit var searchInput: TextInputEditText
 
-    private val allItems = listOf(
-        FurnitureItem(
-            "t1",
-            "Oak Table",
-            Category.TABLES,
-            R.drawable.placeholdertile,
-            300,
-            "Brown",
-            "Wood",
-            listOf("dining", "family")
-        ),
-        FurnitureItem(
-            "t2",
-            "Glass Table",
-            Category.TABLES,
-            R.drawable.placeholdertile,
-            450,
-            "Transparent",
-            "Glass",
-            listOf("modern")
-        ),
-        FurnitureItem(
-            "t3",
-            "Marble Table",
-            Category.TABLES,
-            R.drawable.placeholdertile,
-            850,
-            "White",
-            "Stone",
-            listOf("luxury", "dining")
-        ),
-        FurnitureItem(
-            "c1",
-            "Dining Chair",
-            Category.CHAIRS,
-            R.drawable.placeholdertile,
-            80,
-            "Brown",
-            "Wood",
-            listOf("set", "dining")
-        ),
-        FurnitureItem(
-            "c2",
-            "Arm Chair",
-            Category.CHAIRS,
-            R.drawable.placeholdertile,
-            160,
-            "Blue",
-            "Fabric",
-            listOf("cozy")
-        ),
-        FurnitureItem(
-            "c3",
-            "Office Chair",
-            Category.CHAIRS,
-            R.drawable.placeholdertile,
-            220,
-            "Black",
-            "Leather",
-            listOf("office", "ergonomic")
-        ),
-        FurnitureItem(
-            "d1",
-            "Standing Desk",
-            Category.DESKS,
-            R.drawable.placeholdertile,
-            520,
-            "Black",
-            "Metal",
-            listOf("office")
-        ),
-        FurnitureItem(
-            "d2",
-            "Corner Desk",
-            Category.DESKS,
-            R.drawable.placeholdertile,
-            430,
-            "White",
-            "Wood",
-            listOf("home")
-        ),
-        FurnitureItem(
-            "d3",
-            "Writing Desk",
-            Category.DESKS,
-            R.drawable.placeholdertile,
-            280,
-            "Brown",
-            "Wood",
-            listOf("home", "compact")
-        )
-    )
+//        private val allItems = listOf(
+//            FurnitureItem(
+//            "t1",
+//            "Oak Table",
+//            Category.TABLES,
+//            R.drawable.placeholdertile,
+//            300,
+//            "Brown",
+//            "Wood",
+//            listOf("dining", "family")
+//        ),
+//        FurnitureItem(
+//            "t2",
+//            "Glass Table",
+//            Category.TABLES,
+//            R.drawable.placeholdertile,
+//            450,
+//            "Transparent",
+//            "Glass",
+//            listOf("modern")
+//        ),
+//        FurnitureItem(
+//            "t3",
+//            "Marble Table",
+//            Category.TABLES,
+//            R.drawable.placeholdertile,
+//            850,
+//            "White",
+//            "Stone",
+//            listOf("luxury", "dining")
+//        ),
+//        FurnitureItem(
+//            "c1",
+//            "Dining Chair",
+//            Category.CHAIRS,
+//            R.drawable.placeholdertile,
+//            80,
+//            "Brown",
+//            "Wood",
+//            listOf("set", "dining")
+//        ),
+//        FurnitureItem(
+//            "c2",
+//            "Arm Chair",
+//            Category.CHAIRS,
+//            R.drawable.placeholdertile,
+//            160,
+//            "Blue",
+//            "Fabric",
+//            listOf("cozy")
+//        ),
+//        FurnitureItem(
+//            "c3",
+//            "Office Chair",
+//            Category.CHAIRS,
+//            R.drawable.placeholdertile,
+//            220,
+//            "Black",
+//            "Leather",
+//            listOf("office", "ergonomic")
+//        ),
+//        FurnitureItem(
+//            "d1",
+//            "Standing Desk",
+//            Category.DESKS,
+//            R.drawable.placeholdertile,
+//            520,
+//            "Black",
+//            "Metal",
+//            listOf("office")
+//        ),
+//        FurnitureItem(
+//            "d2",
+//            "Corner Desk",
+//            Category.DESKS,
+//            R.drawable.placeholdertile,
+//            430,
+//            "White",
+//            "Wood",
+//            listOf("home")
+//        ),
+//        FurnitureItem(
+//            "d3",
+//            "Writing Desk",
+//            Category.DESKS,
+//            R.drawable.placeholdertile,
+//            280,
+//            "Brown",
+//            "Wood",
+//            listOf("home", "compact")
+//        )
+//    )
+
+    // All furniture items loaded from DB.
+    // This is the "master list" before filters/search.
+    private var allItems: List<FurnitureItem> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        // Init Volley request queue for network.
+        requestQueue = com.android.volley.toolbox.Volley.newRequestQueue(this)
+        // Because we used AppCompatActivity(R.layout.activity_main),
+        // the layout is already set here. No need to call setContentView() again.
 
         //Camera View
 
@@ -202,17 +243,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             true
         }
 
-        // RecyclerView
+        // --- RecyclerView setup ---
         rv = findViewById(R.id.rvItems)
         rv.layoutManager = GridLayoutManager(this, 3)
         rv.setHasFixedSize(true)
+
+        // Add spacing between grid items.
         rv.addItemDecoration(GridSpacingItemDecoration(3, dp(12), includeEdge = true))
 
         adapter = FurnitureAdapter()
         rv.adapter = adapter
 
-        // Tabs
+        // --- Tabs (Tables / Chairs / Desks) ---
         tabLayout = findViewById(R.id.tabLayout)
+        // Initially show tables.
         showCategory(Category.TABLES)
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -228,7 +272,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
 
-        // Search functionality
+        // --- Search bar ---
         searchInput = findViewById(R.id.edtSearch)
 
         // Real-time search as user types
@@ -241,7 +285,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         })
 
-        // Search button (optional - already handled by TextWatcher)
+        // Update filtering as user types.
         findViewById<ImageButton>(R.id.btnSearch).setOnClickListener {
             currentQuery = searchInput.text?.toString() ?: ""
             applyFiltersAndUpdate()
@@ -260,7 +304,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
 
-        // Navigation buttons
+        // --- Navigation: menu + account avatar + filters ---
         findViewById<ImageButton>(R.id.btnHamburger).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
@@ -272,16 +316,23 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         findViewById<ImageButton>(R.id.btnFilters).setOnClickListener {
             openFilterSheet()
         }
+
+        // Load cached items from DB first (fast), then refresh from API (async).
+        loadFromDbAndUpdateUI()
+        refreshFromApi()
     }
 
+    // Convert dp to px for spacing.
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 
+    // Hide keyboard from search field.
     private fun hideKeyboard() {
         val imm =
             getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
         imm.hideSoftInputFromWindow(searchInput.windowToken, 0)
     }
 
+    // --- Camera: preview (low-res Bitmap) ---
     private fun takePhotoPreview(shake: String = "") {
         // Check if CAMERA permission has been granted.
         val granted = ContextCompat.checkSelfPermission(this, cameraPermission) ==
@@ -315,6 +366,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    // --- Camera: full-res capture ---
     private var photoFile: File? = null
     private var photoUri: Uri? = null
 
@@ -469,7 +521,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
     }
 
+    // --- Filter bottom sheet (price, colors, materials, sort) ---
+
     private fun openFilterSheet() {
+        // if no items yet, don't open filters
+        if (allItems.isEmpty()) {
+            Toast.makeText(this, "Items are still loading, please try again.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val dialog = BottomSheetDialog(
             this
         )
@@ -482,7 +542,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         dialog.setContentView(view)
 
-        // Find views
+        // Find views inside the bottom sheet layout.
         val priceSlider = view.findViewById<RangeSlider>(R.id.priceSlider)
             ?: run {
                 Toast.makeText(this, "priceSlider missing", Toast.LENGTH_SHORT).show(); return
@@ -500,16 +560,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val rbPriceDesc = view.findViewById<RadioButton>(R.id.sortPriceDesc)
         val rbNameAsc = view.findViewById<RadioButton>(R.id.sortNameAsc)
 
-        // Init slider
+        // Configure slider bounds from global min/max price.
         priceSlider.valueFrom = globalMinPrice.toFloat()
         priceSlider.valueTo = globalMaxPrice.toFloat()
         priceSlider.stepSize = 10f
 
+        // Start slider values from current filter state, but clamped.
         val minV = maxOf(filters.minPrice, globalMinPrice).toFloat()
         val maxV = minOf(filters.maxPrice, globalMaxPrice).toFloat()
         priceSlider.values = listOf(minV, maxV)
 
-        // Update price label in real-time
+        // Update price label whenever slider changes.
         val updatePriceLabel = {
             val values = priceSlider.values
             tvPriceRange?.text = "$${values[0].toInt()} - $${values[1].toInt()}"
@@ -522,7 +583,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         // Slider label formatter
         priceSlider.setLabelFormatter { value -> "$${value.toInt()}" }
 
-        // Dynamic chips
+        // Helper to dynamically add Chips for colors/materials.
         fun addChips(group: ChipGroup, items: Set<String>, selected: Set<String>) {
             group.removeAllViews()
             items.forEach { label ->
@@ -534,17 +595,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 group.addView(chip)
             }
         }
+
+        // Populate chips from all available values.
         addChips(chipColors, allColors, filters.colors)
         addChips(chipMats, allMaterials, filters.materials)
 
-        // Sort radio
+        // Reflect current sort choice in the radio buttons.
         when (filters.sort) {
             SortMode.PRICE_ASC -> rbPriceAsc?.isChecked = true
             SortMode.PRICE_DESC -> rbPriceDesc?.isChecked = true
             SortMode.NAME_ASC -> rbNameAsc?.isChecked = true
         }
 
-        // Reset button
+        // --- Reset button: clear filters back to defaults. ---
         view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnReset)
             ?.setOnClickListener {
                 filters = FilterState(
@@ -559,7 +622,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 Toast.makeText(this, "Filters reset", Toast.LENGTH_SHORT).show()
             }
 
-        // Apply button
+        // --- Apply button: read UI controls → update filters → refresh list. ---
         view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnApply)
             ?.setOnClickListener {
                 val values = priceSlider.values
@@ -581,7 +644,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 applyFiltersAndUpdate()
                 dialog.dismiss()
 
-                // Show feedback
+                // Show how many filters are active.
                 val activeFilters = getActiveFilterCount()
                 val message = if (activeFilters > 0) {
                     "Applied $activeFilters filter${if (activeFilters > 1) "s" else ""}"
@@ -593,6 +656,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         dialog.show()
     }
 
+    // Read checked chip texts from a ChipGroup.
     private fun groupCheckedTexts(group: ChipGroup): Set<String> =
         (0 until group.childCount)
             .map { group.getChildAt(it) as Chip }
@@ -600,7 +664,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .map { it.text.toString() }
             .toSet()
 
+    // Count how many filters are currently active (for toast message).
     private fun getActiveFilterCount(): Int {
+        if (allItems.isEmpty()) return 0  // nothing loaded yet
+
         var count = 0
         if (filters.minPrice > globalMinPrice || filters.maxPrice < globalMaxPrice) count++
         if (filters.colors.isNotEmpty()) count += filters.colors.size
@@ -609,10 +676,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         return count
     }
 
+    // Apply search + filters + sort to allItems, then submit to adapter.
     private fun applyFiltersAndUpdate() {
+        // First restrict to current category (Tab).
         var list = allItems.filter { it.category == currentCategory }
 
-        // Search (name or tags)
+        // Text search: match by name or tags.
         if (currentQuery.isNotBlank()) {
             val q = currentQuery.lowercase().trim()
             list = list.filter {
@@ -621,20 +690,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
 
-        // Price
+        // Filter by price range.
         list = list.filter { it.price in filters.minPrice..filters.maxPrice }
 
-        // Colors
+        // Filter by selected colors.
         if (filters.colors.isNotEmpty()) {
             list = list.filter { it.color in filters.colors }
         }
 
-        // Materials
+        // Filter by selected materials.
         if (filters.materials.isNotEmpty()) {
             list = list.filter { it.material in filters.materials }
         }
 
-        // Sort
+        // Apply sorting.
         list = when (filters.sort) {
             SortMode.PRICE_ASC -> list.sortedBy { it.price }
             SortMode.PRICE_DESC -> list.sortedByDescending { it.price }
@@ -643,7 +712,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         adapter.submitList(list)
 
-        // Show empty state feedback
+        // Empty state feedback if filtered list is empty.
         if (list.isEmpty()) {
             val hasSearch = currentQuery.isNotBlank()
             val hasFilters = getActiveFilterCount() > 0
@@ -657,13 +726,108 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
 
+        // Scroll back to top when new items are applied.
         if (list.isNotEmpty()) {
             rv.scrollToPosition(0)
         }
     }
 
+    // Change current category (tab) and re-run filters.
     private fun showCategory(cat: Category) {
         currentCategory = cat
         applyFiltersAndUpdate()
     }
+
+    // Extension function to map DB entity -> UI FurnitureItem.
+    private fun FurnitureEntity.toDomain(): FurnitureItem {
+        return FurnitureItem(
+            id = id,
+            name = name,
+            category = Category.valueOf(category),
+            imageUrl = imageUrl,
+            price = price,
+            color = color,
+            material = material,
+            tags = tags?.split(",") ?: emptyList()
+        )
+    }
+
+    // Load all furniture from DB, convert to domain model, update UI.
+    private fun loadFromDbAndUpdateUI() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val entities = dao.getAll()
+            val domain = entities.map { it.toDomain() }
+
+            withContext(Dispatchers.Main) {
+                allItems = domain
+                applyFiltersAndUpdate()
+            }
+        }
+    }
+
+    // Fetch fresh furniture list from DummyJSON furniture category API.
+    private fun refreshFromApi() {
+        val url = "https://dummyjson.com/products/category/furniture"
+
+        val request = com.android.volley.toolbox.StringRequest(
+            com.android.volley.Request.Method.GET,
+            url,
+            { response ->
+                // Parse JSON off the main thread.
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val root = org.json.JSONObject(response)
+                    val products = root.getJSONArray("products")
+                    val entities = mutableListOf<FurnitureEntity>()
+
+                    for (i in 0 until products.length()) {
+                        val obj = products.getJSONObject(i)
+
+                        val id = obj.getInt("id").toString()
+                        val title = obj.getString("title")
+                        val price = obj.getDouble("price").toInt()
+                        val image = obj.getString("thumbnail")    // use thumbnail as imageUrl
+//                        val description = obj.optString("description", "")
+
+                        // Map API title -> internal Category enum for tabs.
+                        val categoryEnum = when {
+                            title.contains("table", ignoreCase = true) ||
+                                    title.contains("desk", ignoreCase = true)  -> Category.TABLES
+
+                            title.contains("chair", ignoreCase = true) ||
+                                    title.contains("sofa", ignoreCase = true)  ||
+                                    title.contains("stool", ignoreCase = true) -> Category.CHAIRS
+
+                            else -> Category.DESKS
+                        }
+
+                        entities += FurnitureEntity(
+                            id = id,
+                            name = title,
+                            price = price,
+                            category = categoryEnum.name,
+                            imageUrl = image,
+                            color = "Unknown",
+                            material = "Unknown",
+                            tags = null // could parse description into tags in future
+                        )
+                    }
+
+                    // Replace DB with latest furniture set
+                    dao.deleteAll()
+                    dao.insertAll(entities)
+
+                    withContext(Dispatchers.Main) {
+                        loadFromDbAndUpdateUI()
+                    }
+                }
+            },
+            // Handle network errors gracefully.
+            {
+                Toast.makeText(this, "API load failed", Toast.LENGTH_LONG).show()
+            }
+        )
+
+        requestQueue.add(request)
+    }
+
 }
