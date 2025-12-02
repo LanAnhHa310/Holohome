@@ -50,7 +50,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
+//For AR
+import com.google.ar.core.ArCoreApk
 const val REQUEST_CAMERA_PERMISSION = 1001 //for camera access
 
 // Main furniture browsing screen.
@@ -231,6 +232,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         // Because we used AppCompatActivity(R.layout.activity_main),
         // the layout is already set here. No need to call setContentView() again.
 
+        // Enable AR-related functionality on ARCore supported devices only.
+        maybeEnableArButton()
+
         //Camera View
 
         imgPhoto = findViewById(R.id.imgPhoto)
@@ -320,6 +324,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         // Load cached items from DB first (fast), then refresh from API (async).
         loadFromDbAndUpdateUI()
         refreshFromApi()
+    }
+
+    private fun maybeEnableArButton() {
+        ArCoreApk.getInstance().checkAvailabilityAsync(this) { availability ->
+            val btnArView = findViewById<Button>(R.id.btnArView)
+            if (availability.isSupported) {
+                btnArView.visibility = View.VISIBLE
+                btnArView.isEnabled = true
+            } else { // The device is unsupported or unknown.
+                btnArView.visibility = View.INVISIBLE
+                btnArView.isEnabled = false
+            }
+        }
     }
 
     // Convert dp to px for spacing.

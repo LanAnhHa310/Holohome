@@ -78,6 +78,16 @@
             android:layout_marginLeft="10dp"
             android:layout_gravity="bottom"/>
 
+        <!-- Camera button -->
+        <Button
+            android:id="@+id/btnArView"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ar_mode"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="110dp"
+            android:layout_gravity="bottom"/>
+
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
