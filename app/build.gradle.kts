@@ -37,6 +37,16 @@ android {
     }
 }
 
+allprojects {
+
+    repositories{
+
+        google()
+
+    }
+
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -54,4 +64,5 @@ dependencies {
     implementation("io.coil-kt:coil:2.6.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("com.google.ar:core:1.33.0")
 }
