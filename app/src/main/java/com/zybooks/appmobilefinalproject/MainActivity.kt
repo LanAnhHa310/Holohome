@@ -52,6 +52,10 @@ import kotlinx.coroutines.withContext
 
 //For AR
 import com.google.ar.core.ArCoreApk
+import com.google.ar.core.Session
+import com.google.ar.core.exceptions.*
+
+
 const val REQUEST_CAMERA_PERMISSION = 1001 //for camera access
 
 // Main furniture browsing screen.
@@ -67,6 +71,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val dao by lazy { db.furnitureDao() }
     private lateinit var btnCamera: Button
     private lateinit var imgPhoto: ImageView
+
+    // ARCore session management
+    private var mSession: Session? = null
+    private var mUserRequestedInstall = true
+
 
     // Volley request queue for API calls.
     private lateinit var requestQueue: com.android.volley.RequestQueue
@@ -325,6 +334,52 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         loadFromDbAndUpdateUI()
         refreshFromApi()
     }
+
+    override fun onResume() {
+        super.onResume()
+
+        try {
+            // If we don't have a session yet, try to create one
+            if (mSession == null) {
+                when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
+                    ArCoreApk.InstallStatus.INSTALLED -> {
+                        // Success: create session
+                        mSession = Session(this)
+                    }
+                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
+                        // ARCore will prompt the user to install/update Play Services for AR
+                        mUserRequestedInstall = false
+                        return
+                    }
+                }
+            }
+
+            // Resume the session if we have one
+            mSession?.resume()
+
+        } catch (e: UnavailableUserDeclinedInstallationException) {
+            Toast.makeText(this, "ARCore installation declined: $e", Toast.LENGTH_LONG).show()
+            return
+        } catch (e: UnavailableApkTooOldException) {
+            Toast.makeText(this, "Please update ARCore", Toast.LENGTH_LONG).show()
+            return
+        } catch (e: UnavailableSdkTooOldException) {
+            Toast.makeText(this, "Please update this app", Toast.LENGTH_LONG).show()
+            return
+        } catch (e: UnavailableDeviceNotCompatibleException) {
+            Toast.makeText(this, "Device not compatible with ARCore", Toast.LENGTH_LONG).show()
+            return
+        } catch (e: Exception) {
+            Toast.makeText(this, "ARCore error: $e", Toast.LENGTH_LONG).show()
+            return
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mSession?.pause()
+    }
+
 
     private fun maybeEnableArButton() {
         ArCoreApk.getInstance().checkAvailabilityAsync(this) { availability ->
