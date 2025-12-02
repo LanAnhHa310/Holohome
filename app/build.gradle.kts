@@ -37,16 +37,6 @@ android {
     }
 }
 
-allprojects {
-
-    repositories{
-
-        google()
-
-    }
-
-}
-
 dependencies {
 
     implementation(libs.androidx.core.ktx)
