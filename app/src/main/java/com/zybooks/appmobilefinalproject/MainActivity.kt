@@ -112,8 +112,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         var sort: SortMode = SortMode.PRICE_ASC
     )
 
-    // Current tab/category, search query, and filters.
-    private var currentCategory = Category.TABLES
+    // Current search query, and filters.
     private var currentQuery = ""
     private var filters = FilterState()
 
@@ -131,10 +130,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val globalMaxPrice: Int
         get() = allItems.maxOfOrNull { it.price } ?: 10_000
 
-    // RecyclerView + adapter + search field + tabs
+    // RecyclerView + adapter + search field
     private lateinit var rv: RecyclerView
     private lateinit var adapter: FurnitureAdapter
-    private lateinit var tabLayout: TabLayout
     private lateinit var searchInput: TextInputEditText
 
 //        private val allItems = listOf(
@@ -266,24 +264,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         adapter = FurnitureAdapter()
         rv.adapter = adapter
-
-        // --- Tabs (Tables / Chairs / Desks) ---
-        tabLayout = findViewById(R.id.tabLayout)
-        // Initially show tables.
-        showCategory(Category.TABLES)
-
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                when (tab.position) {
-                    0 -> showCategory(Category.TABLES)
-                    1 -> showCategory(Category.CHAIRS)
-                    2 -> showCategory(Category.DESKS)
-                }
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {}
-        })
 
         // --- Search bar ---
         searchInput = findViewById(R.id.edtSearch)
@@ -750,10 +730,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     // Apply search + filters + sort to allItems, then submit to adapter.
     private fun applyFiltersAndUpdate() {
-        // First restrict to current category (Tab).
-        var list = allItems.filter { it.category == currentCategory }
+        // Start from the full catalog
+        var list = allItems.toList()
 
-        // Text search: match by name or tags.
+        // Search (name or tags) – works even with 1 character
         if (currentQuery.isNotBlank()) {
             val q = currentQuery.lowercase().trim()
             list = list.filter {
@@ -762,24 +742,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
 
-        // Filter by price range.
+        // Price filter, colors, materials, sort stay the same
         list = list.filter { it.price in filters.minPrice..filters.maxPrice }
 
-        // Filter by selected colors.
         if (filters.colors.isNotEmpty()) {
             list = list.filter { it.color in filters.colors }
         }
 
-        // Filter by selected materials.
         if (filters.materials.isNotEmpty()) {
             list = list.filter { it.material in filters.materials }
         }
 
-        // Apply sorting.
         list = when (filters.sort) {
-            SortMode.PRICE_ASC -> list.sortedBy { it.price }
+            SortMode.PRICE_ASC  -> list.sortedBy { it.price }
             SortMode.PRICE_DESC -> list.sortedByDescending { it.price }
-            SortMode.NAME_ASC -> list.sortedBy { it.name.lowercase() }
+            SortMode.NAME_ASC   -> list.sortedBy { it.name.lowercase() }
         }
 
         adapter.submitList(list)
@@ -802,12 +779,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         if (list.isNotEmpty()) {
             rv.scrollToPosition(0)
         }
-    }
-
-    // Change current category (tab) and re-run filters.
-    private fun showCategory(cat: Category) {
-        currentCategory = cat
-        applyFiltersAndUpdate()
     }
 
     // Extension function to map DB entity -> UI FurnitureItem.
