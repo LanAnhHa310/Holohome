@@ -11,7 +11,6 @@ class ArViewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val materialLoader = rememberARCameraStream()
             ARScene(
                 // Configure AR session features
                 sessionFeatures = setOf(),
@@ -31,9 +30,6 @@ class ArViewActivity : ComponentActivity() {
 
                 // Enable plane detection visualization
                 planeRenderer = true,
-
-                // Configure camera stream
-                cameraStream = materialLoader,
 
                 // Session lifecycle callbacks
                 onSessionCreated = { session ->
