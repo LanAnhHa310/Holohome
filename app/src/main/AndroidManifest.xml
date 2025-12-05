@@ -72,7 +72,8 @@
         <!-- Keep your ARCore metadata right below it -->
         <meta-data
             android:name="com.google.ar.core"
-            android:value="required" />
+            android:value="required"
+            tools:replace="android:value"/>
 
 
     </application>
