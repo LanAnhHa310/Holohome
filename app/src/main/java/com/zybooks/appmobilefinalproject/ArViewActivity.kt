@@ -1,55 +1,66 @@
 package com.zybooks.appmobilefinalproject
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import io.github.sceneview.ar.ARSceneView
-import io.github.sceneview.node.ModelNode
-import io.github.sceneview.math.Position
-import io.github.sceneview.math.Rotation
-import io.github.sceneview.math.Scale
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import io.github.sceneview.ar.ARScene
+import com.google.ar.core.Config
+import io.github.sceneview.ar.rememberARCameraStream
 
-class ArViewActivity : AppCompatActivity() {
-
-    private lateinit var arSceneView: ARSceneView
-
+class ArViewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_ar_view)
+        setContent {
+            val materialLoader = rememberARCameraStream()
+            ARScene(
+                // Configure AR session features
+                sessionFeatures = setOf(),
+                sessionCameraConfig = null,
 
-        arSceneView = findViewById(R.id.arSceneView)
+                // Configure AR session settings
+                sessionConfiguration = { session, config ->
+                    // Enable depth if supported on the device
+                    config.depthMode =
+                        when (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
+                            true -> Config.DepthMode.AUTOMATIC
+                            else -> Config.DepthMode.DISABLED
+                        }
+                    config.instantPlacementMode = Config.InstantPlacementMode.LOCAL_Y_UP
+                    config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
+                },
 
-        // Tap to place a cube
-        arSceneView.onTouchAr = { hitResults, _ ->
-            val hit = hitResults.firstOrNull() ?: return@onTouchAr
-            val anchor = hit.createAnchor()
+                // Enable plane detection visualization
+                planeRenderer = true,
 
-            val node = ModelNode(
-                modelInstance = null,
-                scaleToUnits = 0.1f,
-                centerOrigin = Position(0.0f, 0.05f, 0.0f)
+                // Configure camera stream
+                cameraStream = materialLoader,
+
+                // Session lifecycle callbacks
+                onSessionCreated = { session ->
+                    // Handle session creation
+                },
+                onSessionResumed = { session ->
+                    // Handle session resume
+                },
+                onSessionPaused = { session ->
+                    // Handle session pause
+                },
+
+                // Frame update callback
+                onSessionUpdated = { session, updatedFrame ->
+                    // Process AR frame updates
+                },
+
+                // Error handling
+                onSessionFailed = { exception ->
+                    // Handle ARCore session errors
+                },
+
+                // Track camera tracking state changes
+                onTrackingFailureChanged = { trackingFailureReason ->
+                    // Handle tracking failures
+                }
             )
-
-            node.position = Position(0f, 0f, -0.3f)
-            node.rotation = Rotation(0f, 0f, 0f)
-            node.scale = Scale(0.1f)
-
-            arSceneView.addChild(node)
-            node.anchor = anchor
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        arSceneView.resume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        arSceneView.pause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        arSceneView.destroy()
     }
 }
