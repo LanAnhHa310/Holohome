@@ -360,7 +360,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         mSession?.pause()
     }
 
-
     private fun maybeEnableArButton() {
         ArCoreApk.getInstance().checkAvailabilityAsync(this) { availability ->
             val btnArView = findViewById<Button>(R.id.btnArView)
