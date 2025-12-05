@@ -13,7 +13,7 @@
 
     <!-- Limits app visibility in the Google Play Store to ARCore supported devices
          (https://developers.google.com/ar/devices). -->
-    <uses-feature android:name="android.hardware.camera.ar" />
+    <uses-feature android:name="android.hardware.camera.ar" android:required="true" />
 
 
     <application
@@ -51,13 +51,31 @@
             android:name=".FavoriteFurn" />
 
         <activity
+            android:name=".ArViewActivity" />
+
+
+        <activity
             android:name=".SavedLayoutsActivity"
             android:exported="false"
             android:parentActivityName=".SettingsActivity" />
 
         <!-- "AR Required" app, requires "Google Play Services for AR" (ARCore)
         to be installed, as the app does not include any non-AR features. -->
-        <meta-data android:name="com.google.ar.core" android:value="required" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Keep your ARCore metadata right below it -->
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="required" />
+
 
     </application>
 

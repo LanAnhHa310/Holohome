@@ -249,6 +249,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         btnCamera.setOnClickListener { takePhotoPreview() }
 
+        // Launch the AR view when "AR Mode" button is tapped
+        findViewById<Button>(R.id.btnArView).setOnClickListener {
+            startActivity(Intent(this, ArViewActivity::class.java))
+        }
+
+
         btnCamera.setOnLongClickListener {
             takePhotoFullRes()
             true
