@@ -15,6 +15,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textfield.TextInputEditText
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
 
 class SavedLayoutsActivity : AppCompatActivity(R.layout.saved_lay) {
 
@@ -118,7 +122,8 @@ class SavedLayoutsActivity : AppCompatActivity(R.layout.saved_lay) {
 
         // Show message if no results
         if (filteredLayouts.isEmpty() && searchQuery.isNotEmpty()) {
-            Toast.makeText(this, "No layouts found matching \"$searchQuery\"", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No layouts found matching \"$searchQuery\"", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
@@ -135,22 +140,27 @@ class SavedLayoutsActivity : AppCompatActivity(R.layout.saved_lay) {
                     Toast.makeText(this, "Showing all layouts", Toast.LENGTH_SHORT).show()
                     true
                 }
+
                 R.id.filter_living_room -> {
                     filterByRoomType("Living Room")
                     true
                 }
+
                 R.id.filter_bedroom -> {
                     filterByRoomType("Bedroom")
                     true
                 }
+
                 R.id.filter_kitchen -> {
                     filterByRoomType("Kitchen")
                     true
                 }
+
                 R.id.filter_office -> {
                     filterByRoomType("Office")
                     true
                 }
+
                 else -> false
             }
         }
@@ -166,7 +176,11 @@ class SavedLayoutsActivity : AppCompatActivity(R.layout.saved_lay) {
         if (filteredLayouts.isEmpty()) {
             Toast.makeText(this, "No $roomType layouts found", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "Showing ${filteredLayouts.size} $roomType layout(s)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Showing ${filteredLayouts.size} $roomType layout(s)",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -181,18 +195,22 @@ class SavedLayoutsActivity : AppCompatActivity(R.layout.saved_lay) {
                     // TODO: Navigate to edit screen
                     true
                 }
+
                 R.id.option_duplicate -> {
                     duplicateLayout(layout)
                     true
                 }
+
                 R.id.option_share -> {
                     shareLayout(layout)
                     true
                 }
+
                 R.id.option_delete -> {
                     showDeleteConfirmation(layout)
                     true
                 }
+
                 else -> false
             }
         }
@@ -215,7 +233,19 @@ class SavedLayoutsActivity : AppCompatActivity(R.layout.saved_lay) {
 
         Toast.makeText(this, "Duplicated: ${layout.name}", Toast.LENGTH_SHORT).show()
 
-        // TODO: Save to persistent storage
+        lifecycleScope.launch {
+            val db = DatabaseProvider.getDatabase(this@SavedLayoutsActivity)
+            val dao = db.savedLayoutDao()
+            dao.insert(
+                SavedLayoutEntity(
+                    id = newLayout.id,
+                    name = newLayout.name,
+                    roomType = newLayout.roomType,
+                    dateCreated = newLayout.dateCreated
+                )
+            )
+        }
+
     }
 
     private fun shareLayout(layout: SavedLayout) {
@@ -246,54 +276,37 @@ class SavedLayoutsActivity : AppCompatActivity(R.layout.saved_lay) {
 
         Toast.makeText(this, "Deleted: ${layout.name}", Toast.LENGTH_SHORT).show()
 
-        // TODO: Remove from persistent storage
+        lifecycleScope.launch {
+            val db = DatabaseProvider.getDatabase(this@SavedLayoutsActivity)
+            val dao = db.savedLayoutDao()
+            dao.delete(
+                SavedLayoutEntity(
+                    id = layout.id,
+                    name = layout.name,
+                    roomType = layout.roomType,
+                    dateCreated = layout.dateCreated
+                )
+            )
+        }
     }
 
     private fun loadSavedLayouts(): List<SavedLayout> {
-        // TODO: Load from SharedPreferences, Room database, or Firebase
-        return listOf(
-            SavedLayout(
-                id = "1",
-                name = "Modern Living Room",
-                roomType = "Living Room",
-                dateCreated = System.currentTimeMillis() - 86400000 * 5,
-                thumbnailResId = R.drawable.outline_design_services_24
-            ),
-            SavedLayout(
-                id = "2",
-                name = "Cozy Bedroom",
-                roomType = "Bedroom",
-                dateCreated = System.currentTimeMillis() - 86400000 * 3,
-                thumbnailResId = R.drawable.outline_design_services_24
-            ),
-            SavedLayout(
-                id = "3",
-                name = "Minimalist Kitchen",
-                roomType = "Kitchen",
-                dateCreated = System.currentTimeMillis() - 86400000,
-                thumbnailResId = R.drawable.outline_design_services_24
-            ),
-            SavedLayout(
-                id = "4",
-                name = "Home Office Setup",
-                roomType = "Office",
-                dateCreated = System.currentTimeMillis(),
-                thumbnailResId = R.drawable.outline_design_services_24
-            ),
-            SavedLayout(
-                id = "5",
-                name = "Scandinavian Living",
-                roomType = "Living Room",
-                dateCreated = System.currentTimeMillis() - 86400000 * 2,
-                thumbnailResId = R.drawable.outline_design_services_24
-            ),
-            SavedLayout(
-                id = "6",
-                name = "Master Bedroom",
-                roomType = "Bedroom",
-                dateCreated = System.currentTimeMillis() - 86400000 * 7,
-                thumbnailResId = R.drawable.outline_design_services_24
-            )
-        )
+        val db = DatabaseProvider.getDatabase(this)
+        val dao = db.savedLayoutDao()
+        var result: List<SavedLayout> = emptyList()
+
+        runBlocking {
+            result = dao.getAll().map {
+                SavedLayout(
+                    id = it.id,
+                    name = it.name,
+                    roomType = it.roomType,
+                    dateCreated = it.dateCreated
+                )
+            }
+        }
+
+        return result
     }
+
 }
