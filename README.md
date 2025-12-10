@@ -23,7 +23,7 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
 ## Getting Started
 ## What you need
 - Android Studio
-- Android phone or emulator (Android 7.0 or newer)
+- Android phone divice with camera or emulated device
 
 1. Clone the repository: git clone https://github.com/GU-App-Development2025/final-project-final-project-team-2.git
 
@@ -68,12 +68,16 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
 - Filter by category
 - Remove items from favorites
 - Navigate back to furniture details
+- Store link integration
+- Persistent storage for saved furniture (currently in-memory)
 
 ## Saved Layouts Management
 - View all saved room layouts
 - Grid layout display (2 columns) with preview cards
 - Search layouts by name or room type
 - Filter by room type (Living Room, Bedroom, Kitchen, Office)
+- Delete and save layouts
+- Persistent storage for saved layouts (currently using sample data)
 
 - **Navigation System**
   - Settings menu with search functionality
@@ -83,13 +87,9 @@ HoloHome helps you see how furniture looks in your room before you buy it. Brows
 
 ## In Progress
 - AR camera integration for furniture placement
-- Multi-item AR scene management
-- Save/load custom room layouts
+- Load custom room layouts
 - Product detail expansion
-- Store link integration
 - Layout editing functionality
-- Persistent storage for saved furniture (currently in-memory)
-- Persistent storage for saved layouts (currently using sample data)
 
 ## Known Issues & Limitations
 - Password stored in plain text (demo only - will implement secure storage)
@@ -144,5 +144,5 @@ Instructor: Daniel Olivares
 - Kotlin
 - Android SDK
 - Material Design Components
-- ARCore (planned)
+- ARCore
 - SharedPreferences
