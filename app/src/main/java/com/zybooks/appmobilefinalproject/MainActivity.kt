@@ -51,8 +51,8 @@ import kotlinx.coroutines.withContext
 
 //For AR
 import com.google.ar.core.ArCoreApk
-import com.google.ar.core.Session
-import com.google.ar.core.exceptions.*
+//import com.google.ar.core.Session
+//import com.google.ar.core.exceptions.*
 
 
 const val REQUEST_CAMERA_PERMISSION = 1001 //for camera access
@@ -71,9 +71,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var btnCamera: Button
     private lateinit var imgPhoto: ImageView
 
-    // ARCore session management
-    private var mSession: Session? = null
-    private var mUserRequestedInstall = true
+//    // ARCore session management
+//    private var mSession: Session? = null
+//    private var mUserRequestedInstall = true
 
 
     // Volley request queue for API calls.
@@ -134,105 +134,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private lateinit var adapter: FurnitureAdapter
     private lateinit var searchInput: TextInputEditText
 
-//        private val allItems = listOf(
-//            FurnitureItem(
-//            "t1",
-//            "Oak Table",
-//            Category.TABLES,
-//            R.drawable.placeholdertile,
-//            300,
-//            "Brown",
-//            "Wood",
-//            listOf("dining", "family")
-//        ),
-//        FurnitureItem(
-//            "t2",
-//            "Glass Table",
-//            Category.TABLES,
-//            R.drawable.placeholdertile,
-//            450,
-//            "Transparent",
-//            "Glass",
-//            listOf("modern")
-//        ),
-//        FurnitureItem(
-//            "t3",
-//            "Marble Table",
-//            Category.TABLES,
-//            R.drawable.placeholdertile,
-//            850,
-//            "White",
-//            "Stone",
-//            listOf("luxury", "dining")
-//        ),
-//        FurnitureItem(
-//            "c1",
-//            "Dining Chair",
-//            Category.CHAIRS,
-//            R.drawable.placeholdertile,
-//            80,
-//            "Brown",
-//            "Wood",
-//            listOf("set", "dining")
-//        ),
-//        FurnitureItem(
-//            "c2",
-//            "Arm Chair",
-//            Category.CHAIRS,
-//            R.drawable.placeholdertile,
-//            160,
-//            "Blue",
-//            "Fabric",
-//            listOf("cozy")
-//        ),
-//        FurnitureItem(
-//            "c3",
-//            "Office Chair",
-//            Category.CHAIRS,
-//            R.drawable.placeholdertile,
-//            220,
-//            "Black",
-//            "Leather",
-//            listOf("office", "ergonomic")
-//        ),
-//        FurnitureItem(
-//            "d1",
-//            "Standing Desk",
-//            Category.DESKS,
-//            R.drawable.placeholdertile,
-//            520,
-//            "Black",
-//            "Metal",
-//            listOf("office")
-//        ),
-//        FurnitureItem(
-//            "d2",
-//            "Corner Desk",
-//            Category.DESKS,
-//            R.drawable.placeholdertile,
-//            430,
-//            "White",
-//            "Wood",
-//            listOf("home")
-//        ),
-//        FurnitureItem(
-//            "d3",
-//            "Writing Desk",
-//            Category.DESKS,
-//            R.drawable.placeholdertile,
-//            280,
-//            "Brown",
-//            "Wood",
-//            listOf("home", "compact")
-//        )
-//    )
-
     // All furniture items loaded from DB.
     // This is the "master list" before filters/search.
     private var allItems: List<FurnitureItem> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Toast.makeText(this, "MainActivity onCreate()", Toast.LENGTH_SHORT).show()
+        Log.d("MainActivity", "onCreate called")
+
         // Init Volley request queue for network.
         requestQueue = com.android.volley.toolbox.Volley.newRequestQueue(this)
         // Because we used AppCompatActivity(R.layout.activity_main),
@@ -320,50 +231,50 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         refreshFromApi()
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        try {
-            // If we don't have a session yet, try to create one
-            if (mSession == null) {
-                when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
-                    ArCoreApk.InstallStatus.INSTALLED -> {
-                        // Success: create session
-                        mSession = Session(this)
-                    }
-                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                        // ARCore will prompt the user to install/update Play Services for AR
-                        mUserRequestedInstall = false
-                        return
-                    }
-                }
-            }
-
-            // Resume the session if we have one
-            mSession?.resume()
-
-        } catch (e: UnavailableUserDeclinedInstallationException) {
-            Toast.makeText(this, "ARCore installation declined: $e", Toast.LENGTH_LONG).show()
-            return
-        } catch (e: UnavailableApkTooOldException) {
-            Toast.makeText(this, "Please update ARCore", Toast.LENGTH_LONG).show()
-            return
-        } catch (e: UnavailableSdkTooOldException) {
-            Toast.makeText(this, "Please update this app", Toast.LENGTH_LONG).show()
-            return
-        } catch (e: UnavailableDeviceNotCompatibleException) {
-            Toast.makeText(this, "Device not compatible with ARCore", Toast.LENGTH_LONG).show()
-            return
-        } catch (e: Exception) {
-            Toast.makeText(this, "ARCore error: $e", Toast.LENGTH_LONG).show()
-            return
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mSession?.pause()
-    }
+//    override fun onResume() {
+//        super.onResume()
+//
+//        try {
+//            // If we don't have a session yet, try to create one
+//            if (mSession == null) {
+//                when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
+//                    ArCoreApk.InstallStatus.INSTALLED -> {
+//                        // Success: create session
+//                        mSession = Session(this)
+//                    }
+//                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
+//                        // ARCore will prompt the user to install/update Play Services for AR
+//                        mUserRequestedInstall = false
+//                        return
+//                    }
+//                }
+//            }
+//
+//            // Resume the session if we have one
+//            mSession?.resume()
+//
+//        } catch (e: UnavailableUserDeclinedInstallationException) {
+//            Toast.makeText(this, "ARCore installation declined: $e", Toast.LENGTH_LONG).show()
+//            return
+//        } catch (e: UnavailableApkTooOldException) {
+//            Toast.makeText(this, "Please update ARCore", Toast.LENGTH_LONG).show()
+//            return
+//        } catch (e: UnavailableSdkTooOldException) {
+//            Toast.makeText(this, "Please update this app", Toast.LENGTH_LONG).show()
+//            return
+//        } catch (e: UnavailableDeviceNotCompatibleException) {
+//            Toast.makeText(this, "Device not compatible with ARCore", Toast.LENGTH_LONG).show()
+//            return
+//        } catch (e: Exception) {
+//            Toast.makeText(this, "ARCore error: $e", Toast.LENGTH_LONG).show()
+//            return
+//        }
+//    }
+//
+//    override fun onPause() {
+//        super.onPause()
+//        mSession?.pause()
+//    }
 
     private fun maybeEnableArButton() {
         ArCoreApk.getInstance().checkAvailabilityAsync(this) { availability ->
@@ -802,13 +713,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     // Load all furniture from DB, convert to domain model, update UI.
     private fun loadFromDbAndUpdateUI() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val entities = dao.getAll()
-            val domain = entities.map { it.toDomain() }
+            try{
+                val entities = dao.getAll()
+                Log.d("MainActivity", "Loaded ${entities.size} items from DB")
+                val domain = entities.map { it.toDomain() }
 
-            withContext(Dispatchers.Main) {
-                allItems = domain
-                applyFiltersAndUpdate()
+                withContext(Dispatchers.Main) {
+                    allItems = domain
+                    applyFiltersAndUpdate()
+                }
+            } catch(e: Exception) {
+                Log.e("MainActivity", "DB load failed", e)
             }
+
         }
     }
 
