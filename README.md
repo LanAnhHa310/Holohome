@@ -2,6 +2,12 @@
 ## What it does
 HoloHome helps you see how furniture looks in your room before you buy it. Browse furniture, use your phone camera to place items in your space, and save room designs you like.
 
+Mobile app built for Gonzaga University's Mobile App Development course.  
+Team project developed with one classmate.  
+
+Original course repository:  
+https://github.com/GU-App-Development2025/final-project-final-project-team-2.git
+
 ## Key Features:
 - Browse furniture by category (tables, chairs, desks)
 - Filter by price, color, and material
